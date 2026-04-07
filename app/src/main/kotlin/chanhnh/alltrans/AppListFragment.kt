@@ -1,6 +1,7 @@
 package chanhnh.alltrans
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -102,11 +103,7 @@ class AppListFragment : Fragment(), SearchableFragment {
             val freshLoadedPackages = withContext(Dispatchers.IO) {
                 Utils.debugLog("AppListFragment: Loading packages in IO thread...")
                 val pm = requireContext().packageManager
-                var packages = getInstalledApplications(requireContext()) // remains var due to filter
-                if (Utils.isExpModuleActive(requireContext())) {
-                    val packageNames = Utils.getExpApps(requireContext())
-                    packages = packages.filter { appInfo -> packageNames.contains(appInfo.packageName) }.toMutableList()
-                }
+                val packages = getInstalledApplications(requireContext())
                 packages.sortWith(Comparator { a, b ->
                     val aEnabled = settings?.contains(a.packageName) == true
                     val bEnabled = settings?.contains(b.packageName) == true
@@ -276,10 +273,27 @@ class AppListFragment : Fragment(), SearchableFragment {
     private fun getInstalledApplications(context: Context): MutableList<ApplicationInfo> {
         val pm = context.packageManager
         try {
-            // PackageManager.GET_META_DATA is 0x00000080 (128)
-            return pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            val launcherIntent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_LAUNCHER)
+            }
+
+            val launcherApps = pm.queryIntentActivities(launcherIntent, PackageManager.MATCH_ALL)
+                .mapNotNull { it.activityInfo?.applicationInfo }
+                .distinctBy { it.packageName }
+                .toMutableList()
+
+            if (launcherApps.isNotEmpty()) {
+                return launcherApps
+            }
         } catch (e: Exception) {
-            Log.w("AppListFragment", "getInstalledApplications (modern) failed, using fallback.", e)
+            Log.w("AppListFragment", "queryIntentActivities failed, trying getInstalledApplications.", e)
+        }
+
+        try {
+            return pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                .toMutableList()
+        } catch (e: Exception) {
+            Log.w("AppListFragment", "getInstalledApplications failed, using fallback.", e)
         }
 
         // Fallback method

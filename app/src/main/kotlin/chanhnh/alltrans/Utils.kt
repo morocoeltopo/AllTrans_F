@@ -19,9 +19,6 @@
 package chanhnh.alltrans
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
 import android.util.Log
 import de.robv.android.xposed.XposedHelpers
 import java.io.StringWriter
@@ -29,45 +26,6 @@ import kotlin.math.min
 
 internal object Utils {
     var Debug: Boolean = true
-
-    fun isExpModuleActive(context: Context): Boolean {
-        requireNotNull(context) { "context must not be null!!" }
-        try {
-            val contentResolver = context.getContentResolver()
-            val uri = Uri.parse("content://me.weishu.exposed.CP/")
-            var result: Bundle?
-            try {
-                result = contentResolver.call(uri, "active", null, null)
-            } catch (e: RuntimeException) {
-                try {
-                    val intent = Intent("me.weishu.exp.ACTION_ACTIVE")
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(intent)
-                } catch (e1: Throwable) {
-                    return false
-                }
-                result = contentResolver.call(uri, "active", null, null)
-            }
-            if (result == null) return false
-            return result.getBoolean("active", false)
-        } catch (ignored: Throwable) {
-        }
-        return false
-    }
-
-    fun getExpApps(context: Context): MutableList<String?> {
-        val result: Bundle?
-        try {
-            result = context.getContentResolver().call(
-                Uri.parse("content://me.weishu.exposed.CP/"), "apps", null, null
-            )
-        } catch (e: Throwable) {
-            return mutableListOf<String?>()
-        }
-        if (result == null) return mutableListOf<String?>()
-        val list: MutableList<String?>? = result.getStringArrayList("apps")
-        return if (list != null) list else mutableListOf<String?>()
-    }
 
     fun debugLog(str: String?) {
         var str = str
