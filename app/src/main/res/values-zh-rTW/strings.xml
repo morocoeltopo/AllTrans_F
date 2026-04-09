@@ -16,9 +16,13 @@
 	<string name="master_on_off_summary_off">"模組已關閉，不會翻譯任何應用程式。打開以開始使用自動翻譯！"</string>
 	<string name="master_on_off_summary_on">"模組已打開，所選應用程式將被翻譯。關閉以完全禁用此模組。"</string>
 	<string name="translator_provider">"翻譯服務提供者"</string>
-	<string name="translator_provider_summary">"選擇要使用的翻譯服務：Google Translate 或 Microsoft Translate"</string>
-	<string name="translator_provider_google">"\nGoogle Translate - 使用 AllTrans 內建的 Google 整合。需要網際網路連線。不需要手動設定 API 金鑰。\n"</string>
-	<string name="translator_provider_microsoft">"\nMicrosoft Translate - 使用 AllTrans 內建的 Microsoft 整合。需要網際網路連線。不需要手動設定 API 金鑰。\n"</string>
+	<string name="translator_provider_summary">"選擇要使用的翻譯服務：Google Translate、Microsoft Translate 或 VietPhrase"</string>
+	<string name="translator_provider_google">Google Translate
+使用內建的 Google 整合。需要網際網路連線。</string>
+	<string name="translator_provider_microsoft">Microsoft Translate
+使用內建的 Microsoft 整合。需要網際網路連線。</string>
+	<string name="translator_provider_vietphrase">VietPhrase
+使用本機詞典檔案進行單向的中文到越南語翻譯。不需要網際網路連線。</string>
 	<string name="downloading">"正在處理翻譯資料。請稍候"</string>
 	<string name="transFrom">"從語言翻譯"</string>
 	<string name="transFrom_summary">"應用最初使用的語言。"</string>

@@ -17,6 +17,18 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
     var applicationInfo: ApplicationInfo? = null
     private var globalSettings: SharedPreferences? = null
 
+    private fun configureTranslatorProviderPreference(preference: ListPreference?) {
+        preference ?: return
+        preference.entries = resources.getTextArray(R.array.translatorProviderNames)
+        preference.summaryProvider = Preference.SummaryProvider<ListPreference> { listPreference ->
+            when (listPreference.value) {
+                "edge" -> getString(R.string.translator_provider_microsoft).lineSequence().firstOrNull()?.trim()
+                PreferenceList.VIETPHRASE_PROVIDER -> getString(R.string.translator_provider_vietphrase).lineSequence().firstOrNull()?.trim()
+                else -> getString(R.string.translator_provider_google).lineSequence().firstOrNull()?.trim()
+            }
+        }
+    }
+
     private fun validateListPreferenceValue(listPreference: ListPreference?) {
         if (listPreference == null) return
         val currentValue: CharSequence? = listPreference.value
@@ -116,6 +128,8 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
         val translatorProvider = findPreference<ListPreference>("TranslatorProvider")
         val translateFromLanguage = findPreference<ListPreference>("TranslateFromLanguage")
         val translateToLanguage = findPreference<ListPreference>("TranslateToLanguage")
+
+        configureTranslatorProviderPreference(translatorProvider)
 
         fun updateLanguageLists(provider: String?) {
             val localOverrideEnabled = findPreference<SwitchPreference>("OverRide")?.isChecked == true

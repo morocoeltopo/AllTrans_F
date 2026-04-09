@@ -53,9 +53,12 @@
     translator_provider
     <string name="translator_provider">"Translation Service Provider"</string>
     <string name="translator_provider_summary">"Choose which translation service to use: Google Translate, Microsoft Translate, or VietPhrase"</string>
-    <string name="translator_provider_google">"\nGoogle Translate - Uses the built-in Google integration in AllTrans. Requires an Internet connection. No manual API key setup is needed.\n"</string>
-    <string name="translator_provider_microsoft">"\nMicrosoft Translate - Uses the built-in Microsoft integration in AllTrans. Requires an Internet connection. No manual API key setup is needed.\n"</string>
-    <string name="translator_provider_vietphrase">"\nVietPhrase - Uses local dictionary files for one-way Chinese to Vietnamese translation. No Internet connection is required. Source language is locked to Chinese and target language is locked to Vietnamese.\n"</string>
+    <string name="translator_provider_google">Google Translate
+Uses the built-in Google integration. Requires an Internet connection.</string>
+    <string name="translator_provider_microsoft">Microsoft Translate
+Uses the built-in Microsoft integration. Requires an Internet connection.</string>
+    <string name="translator_provider_vietphrase">VietPhrase
+Uses local dictionary files for one-way Chinese to Vietnamese translation. No Internet connection is required.</string>
 
     <string name="downloading">"Processing translation data. Please wait"</string>
 

@@ -15,6 +15,7 @@ It works like webpage translation in a browser, but for app UI text. You choose 
 - Translation providers:
   - `Google Translate`
   - `Microsoft Translate`
+  - `VietPhrase`
 
 The app UI includes these translation locales:
 
@@ -34,6 +35,7 @@ Default translation settings:
 - Optional aggressive text replacement mode for apps that do not translate cleanly
 - Translation cache with manual clear and automatic clear when the provider changes
 - Per-app override settings
+- `VietPhrase` support for one-way Chinese-to-Vietnamese translation using local dictionary files without Internet access
 
 ## How to use
 
@@ -41,6 +43,7 @@ Default translation settings:
 2. Enable the module for the apps you want to translate.
 3. Open AllTrans.
 4. In `Global`, choose the provider and default languages.
+   When `VietPhrase` is selected, the source and target languages are locked to `Chinese` and `Vietnamese`.
 5. In `Apps`, enable translation for the target app.
 6. Restart the target app.
 
@@ -49,6 +52,12 @@ If a specific app needs different settings:
 1. Open that app from the `Apps` list.
 2. Enable `OverRide Global Settings`.
 3. Adjust provider, source language, target language, and advanced options for that app only.
+
+Notes about `VietPhrase`:
+
+- It only supports translation from `Chinese` to `Vietnamese`
+- It uses local dictionary files, so no Internet connection is required
+- It is useful when you want faster offline translation
 
 ## Build
 
@@ -68,6 +77,7 @@ Typical debug build:
 
 - Many games still will not translate correctly because of how they render text.
 - When changing the translation provider, AllTrans marks translation cache for clearing automatically.
+- If `VietPhrase` is used, translation is locked to Chinese as the source language and Vietnamese as the target language.
 
 ## License
 

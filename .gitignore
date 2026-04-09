@@ -16,3 +16,4 @@
 /PlayStore/google-play-api-key.json
 *.jks
 *.keystore
+.codex

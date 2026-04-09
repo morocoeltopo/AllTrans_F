@@ -15,6 +15,7 @@ Nó hoạt động tương tự tính năng dịch trang web trong trình duyệ
 - Dịch vụ dịch:
   - `Google Translate`
   - `Microsoft Translate`
+  - `VietPhrase`
 
 Giao diện hiện có các ngôn ngữ:
 
@@ -34,6 +35,7 @@ Cài đặt dịch mặc định:
 - Chế độ mạnh cho các ứng dụng khó dịch
 - Bộ nhớ đệm bản dịch có thể xóa thủ công hoặc tự động đánh dấu xóa khi đổi dịch vụ dịch
 - Ghi đè cài đặt toàn cục cho từng ứng dụng
+- Hỗ trợ `VietPhrase` để dịch một chiều từ tiếng Trung sang tiếng Việt bằng từ điển cục bộ, không cần Internet
 
 ## Cách sử dụng
 
@@ -41,6 +43,7 @@ Cài đặt dịch mặc định:
 2. Bật module cho các ứng dụng bạn muốn dịch.
 3. Mở AllTrans.
 4. Trong tab `Toàn cục`, chọn dịch vụ dịch và ngôn ngữ mặc định.
+   Với `VietPhrase`, ngôn ngữ nguồn và ngôn ngữ đích sẽ được khóa tương ứng là `Tiếng Trung` và `Tiếng Việt`.
 5. Trong tab `Ứng dụng`, bật dịch cho ứng dụng cần dịch.
 6. Khởi động lại ứng dụng đó.
 
@@ -49,6 +52,12 @@ Nếu một ứng dụng cần cài đặt riêng:
 1. Mở ứng dụng đó trong danh sách `Ứng dụng`.
 2. Bật `Ghi đè cài đặt toàn cục`.
 3. Tùy chỉnh dịch vụ dịch, ngôn ngữ nguồn, ngôn ngữ đích và các cài đặt nâng cao riêng cho ứng dụng đó.
+
+Lưu ý về `VietPhrase`:
+
+- Chỉ hỗ trợ dịch từ `Tiếng Trung` sang `Tiếng Việt`
+- Dùng file từ điển cục bộ nên không cần kết nối Internet
+- Phù hợp khi bạn muốn ưu tiên tốc độ và hoạt động ngoại tuyến
 
 ## Build
 
@@ -69,6 +78,7 @@ Build debug thông thường:
 - Nhiều game vẫn sẽ không dịch đúng do cách chúng hiển thị văn bản.
 - Khi đổi dịch vụ dịch, AllTrans sẽ tự đánh dấu xóa bộ nhớ đệm bản dịch.
 - Mặc định ứng dụng sẽ dịch từ ngôn ngữ tự động nhận diện sang tiếng Việt.
+- Nếu dùng `VietPhrase`, ứng dụng sẽ khóa dịch từ tiếng Trung sang tiếng Việt.
 
 ## Giấy phép
 

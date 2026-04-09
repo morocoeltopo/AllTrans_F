@@ -10,6 +10,18 @@ import java.text.Collator
 import java.util.TreeMap
 
 class GlobalPreferencesFragment : PreferenceFragmentCompat() {
+    private fun configureTranslatorProviderPreference(preference: ListPreference?) {
+        preference ?: return
+        preference.entries = resources.getTextArray(R.array.translatorProviderNames)
+        preference.summaryProvider = Preference.SummaryProvider<ListPreference> { listPreference ->
+            when (listPreference.value) {
+                "edge" -> getString(R.string.translator_provider_microsoft).lineSequence().firstOrNull()?.trim()
+                PreferenceList.VIETPHRASE_PROVIDER -> getString(R.string.translator_provider_vietphrase).lineSequence().firstOrNull()?.trim()
+                else -> getString(R.string.translator_provider_google).lineSequence().firstOrNull()?.trim()
+            }
+        }
+    }
+
     private fun requestCacheClearForProviderChange() {
         val globalPrefs = preferenceManager.sharedPreferences ?: return
         val clearTimestamp = System.currentTimeMillis().toString()
@@ -89,6 +101,8 @@ class GlobalPreferencesFragment : PreferenceFragmentCompat() {
         val translatorProvider = findPreference<ListPreference?>("TranslatorProvider")
         val translateFromLanguage = findPreference<ListPreference?>(KEY_TRANSLATE_FROM)
         val translateToLanguage = findPreference<ListPreference?>(KEY_TRANSLATE_TO)
+
+        configureTranslatorProviderPreference(translatorProvider)
 
         fun updateLanguageLists(provider: String?) {
             if (provider == PreferenceList.VIETPHRASE_PROVIDER) {
