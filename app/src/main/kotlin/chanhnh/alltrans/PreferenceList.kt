@@ -4,6 +4,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 internal object PreferenceList {
+    const val VIETPHRASE_PROVIDER = "vietphrase"
+    const val VIETPHRASE_SOURCE_LANGUAGE = "zh"
+    const val VIETPHRASE_TARGET_LANGUAGE = "vi"
+
     var Enabled: Boolean = false
     var LocalEnabled: Boolean = false
     var Debug: Boolean = false
@@ -27,6 +31,11 @@ internal object PreferenceList {
 
     private fun normalizeTranslatorProvider(provider: String?): String {
         return provider?.lowercase() ?: "g"
+    }
+
+    fun isVietPhraseLanguagePair(fromLanguage: String?, toLanguage: String?): Boolean {
+        return (fromLanguage == "auto" || fromLanguage == VIETPHRASE_SOURCE_LANGUAGE) &&
+            toLanguage == VIETPHRASE_TARGET_LANGUAGE
     }
 
     fun getValue(pref: MutableMap<String?, Any?>, key: String?, defValue: Any?): Any? {
@@ -111,6 +120,11 @@ internal object PreferenceList {
                 Delay = (getValue(gPref, "Delay", "0") as String?)?.toIntOrNull() ?: 0
                 DelayWebView = (getValue(gPref, "DelayWebView", "500") as String?)?.toIntOrNull() ?: 500
             } catch (e: NumberFormatException) { /* Defaults already set */ }
+        }
+
+        if (TranslatorProvider == VIETPHRASE_PROVIDER) {
+            TranslateFromLanguage = VIETPHRASE_SOURCE_LANGUAGE
+            TranslateToLanguage = VIETPHRASE_TARGET_LANGUAGE
         }
 
         Utils.debugLog("---- Prefs loaded for $packageName ----")

@@ -118,6 +118,24 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
         val translateToLanguage = findPreference<ListPreference>("TranslateToLanguage")
 
         fun updateLanguageLists(provider: String?) {
+            val localOverrideEnabled = findPreference<SwitchPreference>("OverRide")?.isChecked == true
+
+            if (provider == PreferenceList.VIETPHRASE_PROVIDER) {
+                translateFromLanguage?.apply {
+                    entries = arrayOf(getText(R.string.Chinese_google))
+                    entryValues = arrayOf(PreferenceList.VIETPHRASE_SOURCE_LANGUAGE)
+                    value = PreferenceList.VIETPHRASE_SOURCE_LANGUAGE
+                    isEnabled = false
+                }
+                translateToLanguage?.apply {
+                    entries = arrayOf(getText(R.string.Vietnamese_google))
+                    entryValues = arrayOf(PreferenceList.VIETPHRASE_TARGET_LANGUAGE)
+                    value = PreferenceList.VIETPHRASE_TARGET_LANGUAGE
+                    isEnabled = false
+                }
+                return
+            }
+
             val (namesRes, codesRes) = when (provider) {
                 "edge" -> Pair(R.array.languageNames, R.array.languageCodes)
                 else -> Pair(R.array.languageNamesGoogle, R.array.languageCodesGoogle)
@@ -128,12 +146,14 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
                 entryValues = resources.getTextArray(codesRes)
                 sortListPreferenceByEntries("TranslateFromLanguage")
                 validateListPreferenceValue(this)
+                isEnabled = localOverrideEnabled
             }
             translateToLanguage?.apply {
                 entries = resources.getTextArray(namesRes)
                 entryValues = resources.getTextArray(codesRes)
                 sortListPreferenceByEntries("TranslateToLanguage")
                 validateListPreferenceValue(this)
+                isEnabled = localOverrideEnabled
             }
         }
 
@@ -152,6 +172,7 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
 
         findPreference<SwitchPreference>("OverRide")?.setOnPreferenceChangeListener { _, newValue ->
             enableLocalPrefs(newValue as Boolean)
+            updateLanguageLists(translatorProvider?.value)
             true
         }
 

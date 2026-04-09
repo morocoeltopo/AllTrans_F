@@ -74,6 +74,11 @@
             android:name="chanhnh.alltrans.EdgeProvider"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
+        <provider
+            android:authorities="chanhnh.alltrans.VietPhraseProvider"
+            android:name="chanhnh.alltrans.VietPhraseProvider"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
     </application>
 
 </manifest>

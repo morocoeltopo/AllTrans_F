@@ -91,6 +91,22 @@ class GlobalPreferencesFragment : PreferenceFragmentCompat() {
         val translateToLanguage = findPreference<ListPreference?>(KEY_TRANSLATE_TO)
 
         fun updateLanguageLists(provider: String?) {
+            if (provider == PreferenceList.VIETPHRASE_PROVIDER) {
+                translateFromLanguage?.apply {
+                    entries = arrayOf(getText(R.string.Chinese_google))
+                    entryValues = arrayOf(PreferenceList.VIETPHRASE_SOURCE_LANGUAGE)
+                    value = PreferenceList.VIETPHRASE_SOURCE_LANGUAGE
+                    isEnabled = false
+                }
+                translateToLanguage?.apply {
+                    entries = arrayOf(getText(R.string.Vietnamese_google))
+                    entryValues = arrayOf(PreferenceList.VIETPHRASE_TARGET_LANGUAGE)
+                    value = PreferenceList.VIETPHRASE_TARGET_LANGUAGE
+                    isEnabled = false
+                }
+                return
+            }
+
             val (namesRes, codesRes) = when (provider) {
                 "edge" -> Pair(R.array.languageNames, R.array.languageCodes)
                 else -> Pair(R.array.languageNamesGoogle, R.array.languageCodesGoogle)
@@ -101,12 +117,14 @@ class GlobalPreferencesFragment : PreferenceFragmentCompat() {
                 entryValues = resources.getTextArray(codesRes)
                 sortListPreferenceByEntries(KEY_TRANSLATE_FROM)
                 validateListPreferenceValue(this)
+                isEnabled = true
             }
             translateToLanguage?.apply {
                 entries = resources.getTextArray(namesRes)
                 entryValues = resources.getTextArray(codesRes)
                 sortListPreferenceByEntries(KEY_TRANSLATE_TO)
                 validateListPreferenceValue(this)
+                isEnabled = true
             }
         }
 

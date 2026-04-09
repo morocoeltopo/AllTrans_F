@@ -23,9 +23,10 @@
     <string name="master_on_off_summary_on">"Mô-đun đang bật, các ứng dụng đã chọn sẽ được dịch. Tắt để vô hiệu hóa hoàn toàn mô-đun này."</string>
 
     <string name="translator_provider">"Nhà cung cấp dịch vụ dịch"</string>
-    <string name="translator_provider_summary">"Chọn dịch vụ dịch muốn dùng: Google Translate hoặc Microsoft Translate"</string>
+    <string name="translator_provider_summary">"Chọn dịch vụ dịch muốn dùng: Google Translate, Microsoft Translate hoặc VietPhrase"</string>
     <string name="translator_provider_google">"\nGoogle Translate - Dùng phần tích hợp Google có sẵn trong AllTrans. Cần kết nối Internet. Không cần tự nhập khóa API.\n"</string>
     <string name="translator_provider_microsoft">"\nMicrosoft Translate - Dùng phần tích hợp Microsoft có sẵn trong AllTrans. Cần kết nối Internet. Không cần tự nhập khóa API.\n"</string>
+    <string name="translator_provider_vietphrase">"\nVietPhrase - Dùng bộ từ điển cục bộ để dịch một chiều từ tiếng Trung sang tiếng Việt. Không cần Internet. Ngôn ngữ nguồn được khóa là tiếng Trung và ngôn ngữ đích được khóa là tiếng Việt.\n"</string>
 
     <string name="downloading">"Đang xử lý dữ liệu dịch. Vui lòng chờ"</string>
 

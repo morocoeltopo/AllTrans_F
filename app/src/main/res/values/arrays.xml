@@ -27,21 +27,25 @@
     <string-array name="translator_provider_entries">
         <item>Google Translate</item>
         <item>Microsoft Translate</item>
+        <item>VietPhrase</item>
     </string-array>
 
     <string-array name="translator_provider_values">
         <item>g</item>
         <item>edge</item>
+        <item>vietphrase</item>
     </string-array>
 
     <string-array name="translatorProviderCodes" translatable="false">
         <item>g</item>
         <item>edge</item>
+        <item>vietphrase</item>
     </string-array>
 
     <string-array name="translatorProviderNames" translatable="false">
         <item>@string/translator_provider_google</item>
         <item>@string/translator_provider_microsoft</item>
+        <item>@string/translator_provider_vietphrase</item>
     </string-array>
 
     <string-array name="languageCodesGoogle" translatable="false">

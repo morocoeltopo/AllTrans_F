@@ -295,6 +295,96 @@ internal class GetTranslateToken {
         }
     }
 
+    private fun queryVietPhraseProvider(text: String?, fromLang: String?, toLang: String?): String? {
+        val context = Alltrans.context
+        if (text.isNullOrEmpty() || context == null) {
+            return text
+        }
+
+        val directUri: Uri
+        val proxyUri: Uri
+        try {
+            val encodedText = URLEncoder.encode(text, "UTF-8")
+            val queryParams =
+                "?from=${URLEncoder.encode(fromLang ?: PreferenceList.VIETPHRASE_SOURCE_LANGUAGE, "UTF-8")}&to=${URLEncoder.encode(toLang ?: PreferenceList.VIETPHRASE_TARGET_LANGUAGE, "UTF-8")}&text=$encodedText"
+            directUri = "content://chanhnh.alltrans.VietPhraseProvider$queryParams".toUri()
+            proxyUri = "content://settings/system/alltransProxyProviderURI/chanhnh.alltrans.VietPhraseProvider$queryParams".toUri()
+        } catch (e: UnsupportedEncodingException) {
+            Log.e(TAG, "UTF-8 not supported?!", e)
+            return text
+        }
+
+        val resolver = context.contentResolver
+        var translatedText: String? = null
+        var cursor: Cursor? = null
+        val identity = Binder.clearCallingIdentity()
+
+        try {
+            try {
+                Utils.debugLog("$TAG: Attempting VietPhrase proxy query: $proxyUri")
+                cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val queryArgs = Bundle().apply {
+                        putInt("android:queryArgSelectionBehavior", 0)
+                        putBoolean("android:asyncQuery", true)
+                        putInt("android:honorsExtraArgs", 1)
+                    }
+                    resolver.query(proxyUri, arrayOf("translate"), queryArgs, null)
+                } else {
+                    resolver.query(proxyUri, arrayOf("translate"), null, null, null)
+                }
+
+                if (cursor?.moveToFirst() == true) {
+                    val columnIndex = cursor.getColumnIndex("translate")
+                    if (columnIndex >= 0) {
+                        translatedText = cursor.getString(columnIndex)
+                        Utils.debugLog("$TAG: VietPhrase proxy query successful.")
+                    }
+                }
+            } catch (e: Exception) {
+                Utils.debugLog("$TAG: VietPhrase proxy query exception: ${e.message}")
+            } finally {
+                cursor?.close()
+                cursor = null
+            }
+
+            if (translatedText == null) {
+                try {
+                    Utils.debugLog("$TAG: Attempting VietPhrase direct query: $directUri")
+                    cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        val queryArgs = Bundle().apply {
+                            putInt("android:queryArgSelectionBehavior", 0)
+                            putBoolean("android:asyncQuery", true)
+                            putInt("android:honorsExtraArgs", 1)
+                        }
+                        resolver.query(directUri, arrayOf("translate"), queryArgs, null)
+                    } else {
+                        resolver.query(directUri, arrayOf("translate"), null, null, null)
+                    }
+
+                    if (cursor?.moveToFirst() == true) {
+                        val columnIndex = cursor.getColumnIndex("translate")
+                        if (columnIndex >= 0) {
+                            translatedText = cursor.getString(columnIndex)
+                            Utils.debugLog("$TAG: VietPhrase direct query successful.")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Utils.debugLog("$TAG: VietPhrase direct query exception: ${Log.getStackTraceString(e)}")
+                } finally {
+                    cursor?.close()
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(identity)
+        }
+
+        return if (!translatedText.isNullOrEmpty()) {
+            translatedText
+        } else {
+            text
+        }
+    }
+
     private fun doInBackground() {
         val callback = getTranslate ?: run {
             Log.e(TAG, "GetTranslate is null. Aborting.")
@@ -342,6 +432,7 @@ internal class GetTranslateToken {
             try {
                 result = when (provider) {
                     "edge" -> queryEdgeProvider(textToTranslate, fromLang, toLang)
+                    PreferenceList.VIETPHRASE_PROVIDER -> queryVietPhraseProvider(textToTranslate, fromLang, toLang)
                     else -> queryGoogleProvider(textToTranslate, fromLang, toLang)
                 }
             } catch (t: Throwable) {
