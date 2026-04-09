@@ -18,18 +18,18 @@
 
 # Xposed Framework rules
 -keep class de.robv.android.xposed.** { *; }
--keepclassmembers class * implements de.robv.android.xposed.IXposedMod {
-    <init>(...);
-}
--keepclassmembers class * implements de.robv.android.xposed.IXposedHookLoadPackage {
-    <methods>;
-}
--keepclassmembers class * implements de.robv.android.xposed.IXposedHookZygoteInit {
-    <methods>;
-}
--keepclassmembers class * implements de.robv.android.xposed.IXposedHookInitPackageResources {
-    <methods>;
-}
+-keep interface de.robv.android.xposed.** { *; }
+
+# Keep AllTrans package and all its classes/members
+# This ensures that Xposed can find the entry point and reflection works
+-keep class chanhnh.alltrans.** { *; }
+-keep interface chanhnh.alltrans.** { *; }
+
+# Also explicitly keep types that implement Xposed interfaces
+-keep class * implements de.robv.android.xposed.IXposedMod { *; }
+-keep class * implements de.robv.android.xposed.IXposedHookLoadPackage { *; }
+-keep class * implements de.robv.android.xposed.IXposedHookZygoteInit { *; }
+-keep class * implements de.robv.android.xposed.IXposedHookInitPackageResources { *; }
 
 # ML Kit rules
 -keep class com.google.mlkit.** { *; }
