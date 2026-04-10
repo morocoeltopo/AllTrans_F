@@ -17,12 +17,9 @@
 	<string name="master_on_off_summary_on">"模块已打开，所选应用将被翻译。关闭以完全禁用此模块。"</string>
 	<string name="translator_provider">"翻译服务提供商"</string>
 	<string name="translator_provider_summary">"选择要使用的翻译服务：Google Translate、Microsoft Translate 或 VietPhrase"</string>
-	<string name="translator_provider_google">Google Translate
-使用内置的 Google 集成。需要互联网连接。</string>
-	<string name="translator_provider_microsoft">Microsoft Translate
-使用内置的 Microsoft 集成。需要互联网连接。</string>
-	<string name="translator_provider_vietphrase">VietPhrase
-使用本地词典文件进行单向的中文到越南语翻译。不需要互联网连接。</string>
+	<string name="translator_provider_google">Google Translate\n使用内置的 Google 集成。需要互联网连接。</string>
+	<string name="translator_provider_microsoft">Microsoft Translate\n使用内置的 Microsoft 集成。需要互联网连接。</string>
+	<string name="translator_provider_vietphrase">VietPhrase\n使用本地词典文件进行单向的中文到越南语翻译。不需要互联网连接。</string>
 	<string name="downloading">"正在处理翻译数据。请稍候"</string>
 	<string name="transFrom">"从语言翻译"</string>
 	<string name="transFrom_summary">"应用最初使用的语言。"</string>

@@ -53,12 +53,9 @@
     translator_provider
     <string name="translator_provider">"Translation Service Provider"</string>
     <string name="translator_provider_summary">"Choose which translation service to use: Google Translate, Microsoft Translate, or VietPhrase"</string>
-    <string name="translator_provider_google">Google Translate
-Uses the built-in Google integration. Requires an Internet connection.</string>
-    <string name="translator_provider_microsoft">Microsoft Translate
-Uses the built-in Microsoft integration. Requires an Internet connection.</string>
-    <string name="translator_provider_vietphrase">VietPhrase
-Uses local dictionary files for one-way Chinese to Vietnamese translation. No Internet connection is required.</string>
+    <string name="translator_provider_google">Google Translate\nUses the built-in Google integration. Requires an Internet connection.</string>
+    <string name="translator_provider_microsoft">Microsoft Translate\nUses the built-in Microsoft integration. Requires an Internet connection.</string>
+    <string name="translator_provider_vietphrase">VietPhrase\nUses local dictionary files for one-way Chinese to Vietnamese translation. No Internet connection is required.</string>
 
     <string name="downloading">"Processing translation data. Please wait"</string>
 
@@ -141,7 +138,7 @@ Uses local dictionary files for one-way Chinese to Vietnamese translation. No In
     <string name="clear_cache_summary">"Click to clear the app&apos;s translation cache. Use this after changing translation settings or if the app does not start correctly."</string>
     <string name="clear_cache_provider">"Translation cache will be cleared because the provider changed."</string>
     <!--- Google Language Names -->
-    <string name="Automatic_google">Automático (Google)</string>
+    <string name="Automatic_google">Automatic (Google)</string>
     <string name="Afrikaans_google">"Afrikaans"</string>
     <string name="Arabic_google">"Arabic"</string>
     <string name="Belarusian_google">"Belarusian"</string>
