@@ -17,7 +17,6 @@ class SetTextHookHandler : XC_MethodHook() {
 
     companion object {
         private const val TAG = "AllTrans:SetTextHook"
-        private const val MIN_LENGTH_FOR_TRANSLATION = 2
 
         // ✅ PUBLIC - Marcador especial para textos que NÃO devem ser traduzidos
         // Usado por DrawTextHookHandler também
@@ -33,7 +32,6 @@ class SetTextHookHandler : XC_MethodHook() {
 
         fun shouldSkipTranslation(text: String): Boolean {
             val trimmed = text.trim()
-            if (trimmed.length < MIN_LENGTH_FOR_TRANSLATION) return true
 
             // URLs apenas se forem 100% URL, não texto misto
             if (isCompleteUrl(trimmed)) return true
