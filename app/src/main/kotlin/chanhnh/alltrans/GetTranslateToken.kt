@@ -36,9 +36,10 @@ internal class GetTranslateToken {
         }
 
         val text = callback.stringToBeTrans
+        val spanPayload = callback.spanTranslationPayload
 
         // Request deduplication for single-text mode
-        if (!text.isNullOrEmpty()) {
+        if (spanPayload == null && !text.isNullOrEmpty()) {
             val deduplicationKey = createDeduplicationKey(text)
             val existingFuture = activeRequests[deduplicationKey]
             if (existingFuture != null && !existingFuture.isDone) {
@@ -53,7 +54,7 @@ internal class GetTranslateToken {
         val task = TranslationTask(callback)
         val future = CompletableFuture.supplyAsync({ task.call() }, googleQueryExecutor)
 
-        if (!text.isNullOrEmpty()) {
+        if (spanPayload == null && !text.isNullOrEmpty()) {
             val deduplicationKey = createDeduplicationKey(text)
             activeRequests[deduplicationKey] = future
             future.whenComplete { _, _ ->
@@ -106,6 +107,91 @@ internal class GetTranslateToken {
             val ioEx = if (exception is java.io.IOException) exception else java.io.IOException(reason, exception)
             it.onFailure(createMockCall(), ioEx)
         } ?: Log.e(TAG, "GetTranslate is null in handleTranslationFailure.")
+    }
+
+    private fun getCachedTranslation(text: String): String? {
+        if (!PreferenceList.Caching) return null
+
+        Alltrans.cacheAccess.acquireUninterruptibly()
+        return try {
+            when (val cached = Alltrans.cache?.get(text)) {
+                null -> null
+                SetTextHookHandler.NO_TRANSLATION_MARKER -> text
+                else -> cached
+            }
+        } finally {
+            if (Alltrans.cacheAccess.availablePermits() == 0) {
+                Alltrans.cacheAccess.release()
+            }
+        }
+    }
+
+    private fun cacheTranslation(text: String, translated: String) {
+        if (!PreferenceList.Caching || text == translated) return
+
+        Alltrans.cacheAccess.acquireUninterruptibly()
+        try {
+            Alltrans.cache?.put(text, translated)
+        } finally {
+            if (Alltrans.cacheAccess.availablePermits() == 0) {
+                Alltrans.cacheAccess.release()
+            }
+        }
+    }
+
+    private fun cacheAsNoTranslation(text: String) {
+        if (!PreferenceList.Caching) return
+
+        Alltrans.cacheAccess.acquireUninterruptibly()
+        try {
+            Alltrans.cache?.put(text, SetTextHookHandler.NO_TRANSLATION_MARKER)
+        } finally {
+            if (Alltrans.cacheAccess.availablePermits() == 0) {
+                Alltrans.cacheAccess.release()
+            }
+        }
+    }
+
+    private fun queryProvider(provider: String, text: String, fromLang: String, toLang: String): String? {
+        return when (provider) {
+            "edge" -> queryEdgeProvider(text, fromLang, toLang)
+            PreferenceList.VIETPHRASE_PROVIDER -> queryVietPhraseProvider(text, fromLang, toLang)
+            else -> queryGoogleProvider(text, fromLang, toLang)
+        }
+    }
+
+    private fun translateSegmentedText(
+        payload: SpanTranslationPayload,
+        provider: String,
+        fromLang: String,
+        toLang: String
+    ): List<String> {
+        val translatedSegments = ArrayList<String>(payload.segments.size)
+
+        payload.segments.forEach { segment ->
+            val sourceText = segment.sourceText
+            val translatedText = when {
+                sourceText.isEmpty() -> sourceText
+                SetTextHookHandler.shouldSkipTranslation(sourceText) -> {
+                    cacheAsNoTranslation(sourceText)
+                    sourceText
+                }
+                else -> {
+                    getCachedTranslation(sourceText)
+                        ?: (queryProvider(provider, sourceText, fromLang, toLang) ?: sourceText).also { translated ->
+                            if (translated == sourceText) {
+                                cacheAsNoTranslation(sourceText)
+                            } else if (translated.isNotEmpty()) {
+                                cacheTranslation(sourceText, translated)
+                            }
+                        }
+                }
+            }
+
+            translatedSegments.add(translatedText)
+        }
+
+        return translatedSegments
     }
 
     private fun queryGoogleProvider(text: String?, fromLang: String?, toLang: String?): String? {
@@ -403,8 +489,8 @@ internal class GetTranslateToken {
         }
 
         try {
-            val fromLang = PreferenceList.TranslateFromLanguage
-            val toLang = PreferenceList.TranslateToLanguage
+            val fromLang = PreferenceList.TranslateFromLanguage ?: "auto"
+            val toLang = PreferenceList.TranslateToLanguage ?: "en"
 
             // Skip translation if source == target (non-auto)
             if (fromLang != "auto" && fromLang == toLang) {
@@ -430,10 +516,13 @@ internal class GetTranslateToken {
 
             var result: String? = textToTranslate
             try {
-                result = when (provider) {
-                    "edge" -> queryEdgeProvider(textToTranslate, fromLang, toLang)
-                    PreferenceList.VIETPHRASE_PROVIDER -> queryVietPhraseProvider(textToTranslate, fromLang, toLang)
-                    else -> queryGoogleProvider(textToTranslate, fromLang, toLang)
+                val spanPayload = callback.spanTranslationPayload
+                if (spanPayload != null) {
+                    val translatedSegments = translateSegmentedText(spanPayload, provider, fromLang, toLang)
+                    callback.translatedSegments = translatedSegments
+                    result = translatedSegments.joinToString("")
+                } else {
+                    result = queryProvider(provider, textToTranslate, fromLang, toLang)
                 }
             } catch (t: Throwable) {
                 handleTranslationFailure("Error executing $provider Provider query", t)

@@ -608,6 +608,7 @@ class Alltrans : IXposedHookLoadPackage, IXposedHookZygoteInit {
         // Tag keys used in TextViews to track translation state
         const val ALLTRANS_TRANSLATION_APPLIED_TAG_KEY: Int = 0x7A117AA6
         const val ALLTRANS_PENDING_TRANSLATION_TAG_KEY: Int = 0x7A117AA7
+        const val ALLTRANS_PENDING_SPAN_PAYLOAD_TAG_KEY: Int = 0x7A117AA8
 
         private const val WEBVIEW_HOOK_TAG_KEY_DEFAULT: Int = 0x7f080001
         private var WEBVIEW_HOOK_TAG_KEY: Int = WEBVIEW_HOOK_TAG_KEY_DEFAULT

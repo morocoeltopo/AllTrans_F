@@ -1,8 +1,8 @@
 package chanhnh.alltrans
 
 import android.app.Activity
-import android.text.Spannable
 import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
@@ -174,21 +174,51 @@ class SetTextHookHandler : XC_MethodHook() {
         }
     }
 
-    private fun requestTranslation(text: String, textView: TextView, compositeKey: Int) {
+    private fun getCachedSpannedTranslation(payload: SpanTranslationPayload): CharSequence? {
+        val translatedSegments = ArrayList<String>(payload.segments.size)
+
+        payload.segments.forEach { segment ->
+            val segmentText = segment.sourceText
+            val translatedSegment = when {
+                segmentText.isEmpty() -> segmentText
+                shouldSkipTranslation(segmentText) -> {
+                    cacheAsNoTranslation(segmentText)
+                    segmentText
+                }
+                else -> getCachedTranslation(segmentText, 0)
+            } ?: return null
+
+            translatedSegments.add(translatedSegment)
+        }
+
+        return payload.rebuildTranslatedCharSequence(translatedSegments)
+    }
+
+    private fun clearPendingSpanPayload(textView: TextView) {
+        textView.setTag(Alltrans.ALLTRANS_PENDING_SPAN_PAYLOAD_TAG_KEY, null)
+    }
+
+    private fun requestTranslation(
+        requestKey: String,
+        textView: TextView,
+        compositeKey: Int,
+        spanPayload: SpanTranslationPayload? = null
+    ) {
         val context = textView.context
         if (context is Activity && (context.isFinishing || context.isDestroyed)) {
             removePendingTranslation(compositeKey, "Activity destroyed")
             return
         }
 
-        Utils.debugLog("$TAG: Requesting translation for [${text.take(50)}${if(text.length > 50) "..." else ""}]")
+        Utils.debugLog("$TAG: Requesting translation for [${requestKey.take(50)}${if(requestKey.length > 50) "..." else ""}]")
 
         val getTranslate = GetTranslate().apply {
-            stringToBeTrans = text
+            stringToBeTrans = requestKey
             userData = textView
             originalCallable = null
             canCallOriginal = false
             pendingCompositeKey = compositeKey
+            spanTranslationPayload = spanPayload
         }
         GetTranslateToken().apply { this.getTranslate = getTranslate }.doAll()
     }
@@ -245,21 +275,44 @@ class SetTextHookHandler : XC_MethodHook() {
 
         // Proceed directly to cache check + translation
         // The online Google API natively handles "auto" source language detection
-        val compositeKey = createCompositeKey(textView.hashCode(), originalText)
-        val cachedTranslation = getCachedTranslation(originalText, compositeKey)
-        if (cachedTranslation != null) {
-            textView.setTag(Alltrans.ALLTRANS_TRANSLATION_APPLIED_TAG_KEY, true)
-            modifyArgument(param, cachedTranslation)
-            return
+        val spanPayload = if (originalTextCS is Spanned) {
+            SpanTranslationHelper.createPayload(originalTextCS)
+        } else {
+            null
+        }
+        val requestKey = spanPayload?.requestKey ?: originalText
+        val compositeKey = createCompositeKey(textView.hashCode(), requestKey)
+
+        if (spanPayload != null) {
+            val cachedSpannedTranslation = getCachedSpannedTranslation(spanPayload)
+            if (cachedSpannedTranslation != null) {
+                textView.setTag(Alltrans.ALLTRANS_TRANSLATION_APPLIED_TAG_KEY, true)
+                modifyArgument(param, cachedSpannedTranslation)
+                clearPendingSpanPayload(textView)
+                return
+            }
+        } else {
+            val cachedTranslation = getCachedTranslation(originalText, compositeKey)
+            if (cachedTranslation != null) {
+                textView.setTag(Alltrans.ALLTRANS_TRANSLATION_APPLIED_TAG_KEY, true)
+                modifyArgument(param, cachedTranslation)
+                clearPendingSpanPayload(textView)
+                return
+            }
         }
 
-        if (!addPendingTranslation(compositeKey, originalText)) {
+        if (!addPendingTranslation(compositeKey, requestKey)) {
             Utils.debugLog("$TAG: Translation already pending for [${originalText.take(30)}...]")
             return
         }
 
-        textView.setTag(Alltrans.ALLTRANS_PENDING_TRANSLATION_TAG_KEY, originalText)
-        requestTranslation(originalText, textView, compositeKey)
+        textView.setTag(Alltrans.ALLTRANS_PENDING_TRANSLATION_TAG_KEY, requestKey)
+        if (spanPayload != null) {
+            textView.setTag(Alltrans.ALLTRANS_PENDING_SPAN_PAYLOAD_TAG_KEY, spanPayload)
+        } else {
+            clearPendingSpanPayload(textView)
+        }
+        requestTranslation(requestKey, textView, compositeKey, spanPayload)
     }
 
     private fun configureScroll(textView: TextView) {

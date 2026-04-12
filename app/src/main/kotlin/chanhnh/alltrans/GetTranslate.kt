@@ -17,6 +17,8 @@ class GetTranslate : Callback {
     var canCallOriginal: Boolean = false
     var userData: Any? = null
     var pendingCompositeKey: Int = 0
+    var spanTranslationPayload: SpanTranslationPayload? = null
+    var translatedSegments: List<String>? = null
 
     private val responseHandled = AtomicBoolean(false)
     private val failureHandled = AtomicBoolean(false)
@@ -62,7 +64,7 @@ class GetTranslate : Callback {
 
         val unescaped = Utils.XMLUnescape(translated.orEmpty()) ?: localOriginalString
 
-        if (localOriginalString != null && unescaped != null) {
+        if (spanTranslationPayload == null && localOriginalString != null && unescaped != null) {
             GetTranslateToken.submitIoTask {
                 cacheTranslation(localOriginalString, unescaped)
             }
@@ -108,19 +110,28 @@ class GetTranslate : Callback {
                 if (currentUserData is TextView) {
                     val tv = currentUserData
                     val pendingText = tv.getTag(Alltrans.ALLTRANS_PENDING_TRANSLATION_TAG_KEY) as? String
+                    val pendingSpanPayload = tv.getTag(Alltrans.ALLTRANS_PENDING_SPAN_PAYLOAD_TAG_KEY) as? SpanTranslationPayload
 
                     if (pendingText != originalString) {
                         Utils.debugLog("$TAG: Discarding stale translation for (${tv.hashCode()}). Expected '$pendingText', got '$originalString'.")
                         return@Runnable
                     }
 
-                    if (finalString != originalString || !tv.text.toString().equals(finalString)) {
-                        Utils.debugLog("$TAG: Updating TextView (${tv.hashCode()}) key ($keyToRemove): [$finalString]")
+                    val translatedText: CharSequence = if (pendingSpanPayload != null && pendingSpanPayload.requestKey == originalString) {
+                        pendingSpanPayload.rebuildTranslatedCharSequence(translatedSegments ?: emptyList())
+                    } else {
+                        finalString
+                    }
+
+                    if (translatedText.toString() != originalString || !tv.text.toString().equals(translatedText.toString())) {
+                        Utils.debugLog("$TAG: Updating TextView (${tv.hashCode()}) key ($keyToRemove): [${translatedText.toString()}]")
                         tv.setTag(Alltrans.ALLTRANS_TRANSLATION_APPLIED_TAG_KEY, true)
-                        tv.text = finalString
+                        tv.text = translatedText
                     } else {
                         Utils.debugLog("$TAG: Skipping TextView update (${tv.hashCode()}) key ($keyToRemove) - same text.")
                     }
+                    tv.setTag(Alltrans.ALLTRANS_PENDING_TRANSLATION_TAG_KEY, null)
+                    tv.setTag(Alltrans.ALLTRANS_PENDING_SPAN_PAYLOAD_TAG_KEY, null)
                 } else if (currentCanCallOriginal && currentOriginalCallable != null) {
                     Utils.debugLog("$TAG: Calling originalCallable for key ($keyToRemove): [$finalString]")
                     currentOriginalCallable.callOriginalMethod(finalString, currentUserData)
@@ -164,6 +175,8 @@ class GetTranslate : Callback {
             try {
                 if (localUserData is TextView) {
                     Utils.debugLog("$TAG: Network failure for TextView (key $keyToRemove), original text remains.")
+                    localUserData.setTag(Alltrans.ALLTRANS_PENDING_TRANSLATION_TAG_KEY, null)
+                    localUserData.setTag(Alltrans.ALLTRANS_PENDING_SPAN_PAYLOAD_TAG_KEY, null)
                 } else if (localCanCallOriginal && localOriginalCallable != null) {
                     Utils.debugLog("$TAG: Calling originalCallable on failure for key ($keyToRemove).")
                     localOriginalCallable.callOriginalMethod(localOriginalString.orEmpty(), localUserData)

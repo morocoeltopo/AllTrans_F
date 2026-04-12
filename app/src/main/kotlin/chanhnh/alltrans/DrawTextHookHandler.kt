@@ -96,8 +96,8 @@ class DrawTextHookHandler : XC_MethodReplacement(), OriginalCallable {
         args[0] = when (args[0]!!::class.java) {
             CharArray::class.java -> translatedText.toCharArray()
             CharBuffer::class.java -> createCharBuffer(translatedString)
-            SpannableString::class.java -> SpannableString(translatedText)
-            SpannedString::class.java -> SpannedString(translatedText)
+            SpannableString::class.java -> SpannableString(translatedString ?: translatedText)
+            SpannedString::class.java -> SpannedString(translatedString ?: translatedText)
             String::class.java -> translatedText
             StringBuffer::class.java -> StringBuffer(translatedText)
             StringBuilder::class.java -> StringBuilder(translatedText)
