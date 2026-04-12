@@ -38,10 +38,17 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          ./gradlew assembleRelease \
+          ./gradlew assembleDebug assembleRelease \
           -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD" \
           -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS" \
           -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
+
+      - name: Upload Debug APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alltrans-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
 
       - name: Upload Release APK
         if: success()
