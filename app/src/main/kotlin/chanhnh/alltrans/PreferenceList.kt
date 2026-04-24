@@ -18,7 +18,6 @@ internal object PreferenceList {
     var SetText: Boolean = false
     var SetHint: Boolean = false
     var LoadURL: Boolean = false
-    var DrawText: Boolean = false
     var Notif: Boolean = false
 
     var Caching: Boolean = false
@@ -92,7 +91,6 @@ internal object PreferenceList {
             SetText = getValue(lPref, "SetText", getValue(gPref, "SetText", true)) as Boolean
             SetHint = getValue(lPref, "SetHint", getValue(gPref, "SetHint", true)) as Boolean
             LoadURL = getValue(lPref, "LoadURL", getValue(gPref, "LoadURL", true)) as Boolean
-            DrawText = getValue(lPref, "DrawText", getValue(gPref, "DrawText", false)) as Boolean
             Notif = getValue(lPref, "Notif", getValue(gPref, "Notif", true)) as Boolean
             Caching = getValue(lPref, "Cache", getValue(gPref, "Cache", true)) as Boolean
             Scroll = getValue(lPref, "Scroll", getValue(gPref, "Scroll", false)) as Boolean
@@ -111,7 +109,6 @@ internal object PreferenceList {
             SetText = getValue(gPref, "SetText", true) as Boolean
             SetHint = getValue(gPref, "SetHint", true) as Boolean
             LoadURL = getValue(gPref, "LoadURL", true) as Boolean
-            DrawText = getValue(gPref, "DrawText", false) as Boolean
             Notif = getValue(gPref, "Notif", true) as Boolean
             Caching = getValue(gPref, "Cache", true) as Boolean
             Scroll = getValue(gPref, "Scroll", false) as Boolean

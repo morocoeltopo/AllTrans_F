@@ -89,10 +89,6 @@
     <string name="notif_summary_off">"Not Translating Text in Notifications. Turn on to enable."</string>
     <string name="notif_summary_on">"Translating Text inside Notifications - Safe, May sometimes crash apps. Turn off to disable."</string>
 
-    <!-- drawText -->
-    <string name="drawText">"Aggressive Mode"</string>
-    <string name="drawText_summary_off">"Not aggressively translating Text in drawText. Use when all above fails. Turn on to enable."</string>
-    <string name="drawText_summary_on">"Aggressively translating Text in drawText - Experimental, May Not Work Always. Turn off to disable."</string>
 
 
     <!-- Categories Other Settings -->

@@ -75,14 +75,6 @@
         <SwitchPreference
             app:iconSpaceReserved="false"
             app:defaultValue="false"
-            app:key="DrawText"
-            app:summaryOff="@string/drawText_summary_off"
-            app:summaryOn="@string/drawText_summary_on"
-            app:title="@string/drawText" />
-
-        <SwitchPreference
-            app:iconSpaceReserved="false"
-            app:defaultValue="false"
             app:key="Scroll"
             app:summaryOff="@string/scroll_summary_off"
             app:summaryOn="@string/scroll_summary_on"

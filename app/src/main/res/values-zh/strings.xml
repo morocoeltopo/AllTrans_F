@@ -37,9 +37,6 @@
 	<string name="notif">"翻译通知"</string>
 	<string name="notif_summary_off">"不翻译通知中的文本。打开以启用。"</string>
 	<string name="notif_summary_on">"翻译通知中的文本 - 安全，有时可能会使应用程序崩溃。关闭以禁用。"</string>
-	<string name="drawText">"攻击性模式"</string>
-	<string name="drawText_summary_off">"不积极翻译绘制文本中的文本。当上述所有方法都失败时使用。打开以启用。"</string>
-	<string name="drawText_summary_on">"积极翻译文本在绘制文本 - 实验，可能不工作永远。关闭以禁用。"</string>
 	<string name="caching">"使用缓存"</string>
 	<string name="caching_summary_off">"不缓存翻译文本。翻译可能更慢，并且会使用更多网络数据，但对某些应用可能更稳定。打开以缓存翻译。"</string>
 	<string name="caching_summary_on">"缓存翻译文本以提高速度并减少重复的网络请求。如果已翻译的应用不稳定，请关闭。"</string>

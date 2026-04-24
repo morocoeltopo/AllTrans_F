@@ -19,7 +19,6 @@ class SetTextHookHandler : XC_MethodHook() {
         private const val TAG = "AllTrans:SetTextHook"
 
         // ✅ PUBLIC - Marcador especial para textos que NÃO devem ser traduzidos
-        // Usado por DrawTextHookHandler também
         const val NO_TRANSLATION_MARKER = "::SKIP_TRANSLATION::"
 
         // Cache for detected patterns

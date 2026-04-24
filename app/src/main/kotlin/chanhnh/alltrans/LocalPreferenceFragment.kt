@@ -84,7 +84,7 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
     private fun enableLocalPrefs(enable: Boolean) {
         val keysToToggle = listOf(
             "TranslateFromLanguage", "TranslateToLanguage", "SetText",
-            "SetHint", "LoadURL", "DrawText", "Notif", "Cache", "Scroll", "Delay", "DelayWebView"
+            "SetHint", "LoadURL", "Notif", "Cache", "Scroll", "Delay", "DelayWebView"
         )
         keysToToggle.forEach { key ->
             findPreference<Preference>(key)?.isEnabled = enable

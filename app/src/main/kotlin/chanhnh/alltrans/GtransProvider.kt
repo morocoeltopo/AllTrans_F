@@ -118,6 +118,7 @@ class GtransProvider : ContentProvider() {
             translated = translated.replace(Regex("(?i)<br\\s*/?>"), "\n")
             // Handle optional paragraph tags if returned
             translated = translated.replace(Regex("(?i)<p>"), "").replace(Regex("(?i)</p>"), "\n")
+            translated = Utils.XMLUnescape(translated) ?: translated
             
             // Trim if it ends with extra newline from </p>
             if (translated.endsWith("\n") && !text.endsWith("\n")) {

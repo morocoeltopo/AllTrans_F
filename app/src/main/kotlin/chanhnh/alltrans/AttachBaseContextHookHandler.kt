@@ -8,13 +8,16 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ApplicationInfo
 import android.database.Cursor
-import android.graphics.Paint
-import android.graphics.text.MeasuredText
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.text.Layout
+import android.text.TextPaint
+import android.text.TextUtils
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.TextView
@@ -117,7 +120,7 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
 
                 // Aplicar hooks
                 try {
-                    applyAllHooks(packageName)
+                    applyAllHooks(context)
                     hookedPackages.add(packageName)
                     Utils.debugLog("AllTrans: Successfully hooked $packageName")
                 } catch (e: Exception) {
@@ -260,17 +263,30 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
         /**
          * Aplica todos os hooks de uma vez
          */
-        private fun applyAllHooks(packageName: String) {
+        private fun applyAllHooks(context: Context) {
+            val packageName = context.packageName
             Utils.debugLog("Applying all hooks for $packageName")
 
             // TextView hooks (expandido)
             applyTextViewHooks()
 
+            // View/ViewGroup hooks to trigger translation on attached/dynamic views
+            applyViewHierarchyHooks()
+
+            // Hook direct framework View text-bearing methods
+            applyFrameworkViewTextHooks()
+
+            // Hook custom View/ViewGroup implementations exposing setText(...)
+            CustomViewSetTextHookHandler.hookCustomSetTextMethods(context)
+
+            // StaticLayout hook for text rendered outside the TextView setText path
+            applyStaticLayoutHooks(context)
+
+            // Legacy layout constructors still used by many custom View implementations
+            applyLegacyLayoutHooks(context)
+
             // WebView hooks
             applyWebViewHooks(packageName)
-
-            // DrawText hooks
-            applyDrawTextHooks()
 
             // Notification hooks
             applyNotificationHooks()
@@ -418,52 +434,129 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
             }
         }
 
-        /**
-         * Hooks do DrawText
-         */
-        private fun applyDrawTextHooks() {
-            if (PreferenceList.DrawText && Alltrans.baseRecordingCanvas != null) {
-                Utils.debugLog("Applying DrawText hooks")
-                val canvasClass: Class<*>? = Alltrans.baseRecordingCanvas
+        private fun applyViewHierarchyHooks() {
+            if (!PreferenceList.SetText && !PreferenceList.SetHint) return
 
-                Utils.tryHookMethod(canvasClass, "drawText", CharArray::class.java,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                    Float::class.javaPrimitiveType, Float::class.javaPrimitiveType,
-                    Paint::class.java, Alltrans.drawTextHook)
+            Utils.debugLog("Applying View/ViewGroup hooks")
+            Utils.tryHookMethod(View::class.java, "onAttachedToWindow", Alltrans.viewHierarchyHook)
+            Utils.tryHookMethod(ViewGroup::class.java, "onViewAdded", View::class.java, Alltrans.viewHierarchyHook)
+            Utils.tryHookMethod(ViewGroup::class.java, "addView", View::class.java, Alltrans.viewHierarchyHook)
+            Utils.tryHookMethod(ViewGroup::class.java, "addView", View::class.java, Int::class.javaPrimitiveType, Alltrans.viewHierarchyHook)
+            Utils.tryHookMethod(ViewGroup::class.java, "addView", View::class.java, ViewGroup.LayoutParams::class.java, Alltrans.viewHierarchyHook)
+            Utils.tryHookMethod(
+                ViewGroup::class.java,
+                "addView",
+                View::class.java,
+                Int::class.javaPrimitiveType,
+                ViewGroup.LayoutParams::class.java,
+                Alltrans.viewHierarchyHook
+            )
+        }
 
-                Utils.tryHookMethod(canvasClass, "drawText", String::class.java,
-                    Float::class.javaPrimitiveType, Float::class.javaPrimitiveType,
-                    Paint::class.java, Alltrans.drawTextHook)
+        private fun applyFrameworkViewTextHooks() {
+            if (!PreferenceList.SetText) return
 
-                Utils.tryHookMethod(canvasClass, "drawText", String::class.java,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                    Float::class.javaPrimitiveType, Float::class.javaPrimitiveType,
-                    Paint::class.java, Alltrans.drawTextHook)
+            val viewTextHook = ViewTextMethodHookHandler()
+            Utils.debugLog("Applying framework View text hooks")
+            Utils.tryHookMethod(View::class.java, "setContentDescription", CharSequence::class.java, viewTextHook)
+            Utils.tryHookMethod(View::class.java, "setTooltipText", CharSequence::class.java, viewTextHook)
+            Utils.tryHookMethod(View::class.java, "setAccessibilityPaneTitle", CharSequence::class.java, viewTextHook)
 
-                Utils.tryHookMethod(canvasClass, "drawText", CharSequence::class.java,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                    Float::class.javaPrimitiveType, Float::class.javaPrimitiveType,
-                    Paint::class.java, Alltrans.drawTextHook)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Utils.tryHookMethod(View::class.java, "setStateDescription", CharSequence::class.java, viewTextHook)
+            }
+        }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    Utils.tryHookMethod(canvasClass, "drawTextRun", CharArray::class.java,
-                        Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                        Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                        Float::class.javaPrimitiveType, Float::class.javaPrimitiveType,
-                        Boolean::class.javaPrimitiveType, Paint::class.java, Alltrans.drawTextHook)
+        private fun applyStaticLayoutHooks(context: Context) {
+            if (!PreferenceList.SetText) return
 
-                    Utils.tryHookMethod(canvasClass, "drawTextRun", CharSequence::class.java,
-                        Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                        Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                        Float::class.javaPrimitiveType, Float::class.javaPrimitiveType,
-                        Boolean::class.javaPrimitiveType, Paint::class.java, Alltrans.drawTextHook)
-                }
+            Utils.debugLog("Applying StaticLayout hooks")
+            Utils.tryHookMethod(
+                "android.text.StaticLayout\$Builder",
+                context.classLoader,
+                "build",
+                Alltrans.staticLayoutHook
+            )
+        }
 
-                Utils.tryHookMethod(canvasClass, "drawTextRun", MeasuredText::class.java,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                    Float::class.javaPrimitiveType, Float::class.javaPrimitiveType,
-                    Boolean::class.javaPrimitiveType, Paint::class.java, Alltrans.drawTextHook)
+        private fun applyLegacyLayoutHooks(context: Context) {
+            if (!PreferenceList.SetText) return
+
+            val hook = LayoutConstructorHookHandler()
+            val classLoader = context.classLoader
+
+            try {
+                XposedHelpers.findAndHookConstructor(
+                    "android.text.StaticLayout",
+                    classLoader,
+                    CharSequence::class.java,
+                    Int::class.javaPrimitiveType,
+                    Int::class.javaPrimitiveType,
+                    TextPaint::class.java,
+                    Int::class.javaPrimitiveType,
+                    Layout.Alignment::class.java,
+                    Class.forName("android.text.TextDirectionHeuristic"),
+                    Float::class.javaPrimitiveType,
+                    Float::class.javaPrimitiveType,
+                    Boolean::class.javaPrimitiveType,
+                    TextUtils.TruncateAt::class.java,
+                    Int::class.javaPrimitiveType,
+                    Int::class.javaPrimitiveType,
+                    hook
+                )
+            } catch (_: Throwable) {
+            }
+
+            try {
+                XposedHelpers.findAndHookConstructor(
+                    "android.text.StaticLayout",
+                    classLoader,
+                    CharSequence::class.java,
+                    TextPaint::class.java,
+                    Int::class.javaPrimitiveType,
+                    Layout.Alignment::class.java,
+                    Float::class.javaPrimitiveType,
+                    Float::class.javaPrimitiveType,
+                    Boolean::class.javaPrimitiveType,
+                    hook
+                )
+            } catch (_: Throwable) {
+            }
+
+            try {
+                XposedHelpers.findAndHookConstructor(
+                    "android.text.BoringLayout",
+                    classLoader,
+                    CharSequence::class.java,
+                    TextPaint::class.java,
+                    Int::class.javaPrimitiveType,
+                    Layout.Alignment::class.java,
+                    Float::class.javaPrimitiveType,
+                    Float::class.javaPrimitiveType,
+                    Class.forName("android.text.BoringLayout\$Metrics"),
+                    Boolean::class.javaPrimitiveType,
+                    hook
+                )
+            } catch (_: Throwable) {
+            }
+
+            try {
+                XposedHelpers.findAndHookConstructor(
+                    "android.text.BoringLayout",
+                    classLoader,
+                    CharSequence::class.java,
+                    TextPaint::class.java,
+                    Int::class.javaPrimitiveType,
+                    Layout.Alignment::class.java,
+                    Float::class.javaPrimitiveType,
+                    Float::class.javaPrimitiveType,
+                    Class.forName("android.text.BoringLayout\$Metrics"),
+                    Boolean::class.javaPrimitiveType,
+                    TextUtils.TruncateAt::class.java,
+                    Int::class.javaPrimitiveType,
+                    hook
+                )
+            } catch (_: Throwable) {
             }
         }
 

@@ -173,7 +173,6 @@ class GlobalPreferencesFragment : PreferenceFragmentCompat() {
             "SetText",
             "SetHint",
             "LoadURL",
-            "DrawText",
             "Notif",
             "Cache",
             "Scroll",

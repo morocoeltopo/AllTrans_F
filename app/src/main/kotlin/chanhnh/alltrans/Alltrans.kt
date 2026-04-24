@@ -125,21 +125,6 @@ class Alltrans : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         XposedBridge.log("AllTrans: Processing package: ${lpparam.packageName} (MODULE_PATH check: $MODULE_PATH)")
 
-        try {
-            if (baseRecordingCanvas == null) {
-                baseRecordingCanvas = XposedHelpers.findClass(
-                    "android.graphics.BaseRecordingCanvas",
-                    lpparam.classLoader
-                )
-                XposedBridge.log("AllTrans: Found BaseRecordingCanvas.")
-            }
-        } catch (e: XposedHelpers.ClassNotFoundError) {
-            Utils.debugLog("AllTrans: BaseRecordingCanvas class not found for ${lpparam.packageName}: " + e.message)
-        } catch (e: Exception) {
-            Utils.debugLog("AllTrans: Error finding BaseRecordingCanvas for ${lpparam.packageName}: " + e.message)
-            XposedBridge.log(e)
-        }
-
         cache
 
         Utils.tryHookMethod(Application::class.java, "onCreate", AppOnCreateHookHandler())
@@ -568,7 +553,10 @@ class Alltrans : IXposedHookLoadPackage, IXposedHookZygoteInit {
         val cacheAccess: Semaphore = Semaphore(1, true)
 
         @SuppressLint("StaticFieldLeak")
-        val drawTextHook: DrawTextHookHandler = DrawTextHookHandler()
+        val viewHierarchyHook: ViewHierarchyHookHandler = ViewHierarchyHookHandler()
+
+        @SuppressLint("StaticFieldLeak")
+        val staticLayoutHook: StaticLayoutHookHandler = StaticLayoutHookHandler()
 
         @SuppressLint("StaticFieldLeak")
         val notifyHook: NotificationHookHandler = NotificationHookHandler()
@@ -596,7 +584,6 @@ class Alltrans : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         @SuppressLint("StaticFieldLeak")
         var context: Context? = null
-        var baseRecordingCanvas: Class<*>? = null
         var settingsHooked: Boolean = false
 
         var isProxyEnabled: Boolean = true

@@ -37,9 +37,6 @@
 	<string name="notif">"翻譯通知"</string>
 	<string name="notif_summary_off">"不翻譯通知中的文本。打開以啟用。"</string>
 	<string name="notif_summary_on">"翻譯通知中的文字 - 安全，有時可能會使應用程式崩潰。關閉以禁用。"</string>
-	<string name="drawText">"主動模式"</string>
-	<string name="drawText_summary_off">"不積極地翻譯drawText中的文本。在上述所有方法失敗時使用。打開以啟用。"</string>
-	<string name="drawText_summary_on">"積極地翻譯drawText中的文本 - 實驗性的，可能並不總是有效。關閉以禁用。"</string>
 	<string name="caching">"使用快取"</string>
 	<string name="caching_summary_off">"不快取翻譯文本。翻譯可能較慢，且會使用更多網路資料，但對某些應用可能更穩定。打開以快取翻譯。"</string>
 	<string name="caching_summary_on">"快取翻譯文本以提升速度並減少重複的網路請求。如果已翻譯的應用程式不穩定，請關閉。"</string>

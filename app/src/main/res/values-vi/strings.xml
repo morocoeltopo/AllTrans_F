@@ -52,9 +52,6 @@
     <string name="notif_summary_off">"Không dịch văn bản trong thông báo. Bật để kích hoạt."</string>
     <string name="notif_summary_on">"Đang dịch văn bản trong thông báo. An toàn nhưng đôi khi có thể làm ứng dụng bị lỗi. Tắt để vô hiệu hóa."</string>
 
-    <string name="drawText">"Chế độ mạnh"</string>
-    <string name="drawText_summary_off">"Không dịch mạnh tay bằng drawText. Dùng khi các cách trên không hiệu quả. Bật để kích hoạt."</string>
-    <string name="drawText_summary_on">"Đang dịch mạnh tay bằng drawText. Đây là tính năng thử nghiệm và có thể không phải lúc nào cũng hoạt động. Tắt để vô hiệu hóa."</string>
 
     <string name="caching">"Dùng bộ nhớ đệm"</string>
     <string name="caching_summary_off">"Không lưu bộ nhớ đệm bản dịch. Việc dịch có thể chậm hơn và dùng nhiều dữ liệu mạng hơn, nhưng có thể hoạt động tốt hơn với một số ứng dụng. Bật để lưu bộ nhớ đệm bản dịch."</string>

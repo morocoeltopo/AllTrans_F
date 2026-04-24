@@ -22,6 +22,8 @@ import android.content.Context
 import android.util.Log
 import de.robv.android.xposed.XposedHelpers
 import java.io.StringWriter
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import kotlin.math.min
 
 internal object Utils {
@@ -85,18 +87,56 @@ internal object Utils {
         }
     }
 
-    // Método corrigido de XML unescape
+    private val numericEntityPattern = Pattern.compile("&#(x?[0-9A-Fa-f]+);")
+    private val namedEntities = mapOf(
+        "amp" to "&",
+        "quot" to "\"",
+        "apos" to "'",
+        "lt" to "<",
+        "gt" to ">",
+        "nbsp" to " ",
+        "ndash" to "-",
+        "mdash" to "\u2014",
+        "hellip" to "\u2026",
+        "laquo" to "\u00AB",
+        "raquo" to "\u00BB",
+        "lsquo" to "\u2018",
+        "rsquo" to "\u2019",
+        "ldquo" to "\u201C",
+        "rdquo" to "\u201D",
+        "bull" to "\u2022"
+    )
+
     fun XMLUnescape(s: String?): String? {
         if (s == null) return null
-        var retVal: String? = s
-        retVal = retVal!!.replace("&amp;", "&")
-        retVal = retVal.replace("&quot;", "\"")
-        retVal = retVal.replace("&apos;", "'")
-        retVal = retVal.replace("&lt;", "<")
-        retVal = retVal.replace("&gt;", ">")
-        retVal = retVal.replace("&#13;", "\r")
-        retVal = retVal.replace("&#10;", "\n")
-        return retVal
+        var retVal: String = s
+        namedEntities.forEach { (entity, value) ->
+            retVal = retVal.replace("&$entity;", value)
+        }
+
+        val matcher = numericEntityPattern.matcher(retVal)
+        val out = StringBuffer(retVal.length)
+        while (matcher.find()) {
+            val rawValue = matcher.group(1) ?: continue
+            val codePoint = try {
+                if (rawValue.startsWith("x", ignoreCase = true)) {
+                    rawValue.substring(1).toInt(16)
+                } else {
+                    rawValue.toInt(10)
+                }
+            } catch (_: NumberFormatException) {
+                continue
+            }
+
+            val replacement = try {
+                String(Character.toChars(codePoint))
+            } catch (_: IllegalArgumentException) {
+                continue
+            }
+            matcher.appendReplacement(out, Matcher.quoteReplacement(replacement))
+        }
+        matcher.appendTail(out)
+        return out.toString()
     }
 
     fun javaScriptEscape(str: String?): String? {

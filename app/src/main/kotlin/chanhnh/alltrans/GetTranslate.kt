@@ -19,6 +19,7 @@ class GetTranslate : Callback {
     var pendingCompositeKey: Int = 0
     var spanTranslationPayload: SpanTranslationPayload? = null
     var translatedSegments: List<String>? = null
+    var forceCacheResult: Boolean = false
 
     private val responseHandled = AtomicBoolean(false)
     private val failureHandled = AtomicBoolean(false)

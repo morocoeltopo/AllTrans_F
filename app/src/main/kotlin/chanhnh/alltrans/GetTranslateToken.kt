@@ -164,7 +164,8 @@ internal class GetTranslateToken {
         payload: SpanTranslationPayload,
         provider: String,
         fromLang: String,
-        toLang: String
+        toLang: String,
+        forceCacheResult: Boolean
     ): List<String> {
         val translatedSegments = ArrayList<String>(payload.segments.size)
 
@@ -173,15 +174,19 @@ internal class GetTranslateToken {
             val translatedText = when {
                 sourceText.isEmpty() -> sourceText
                 SetTextHookHandler.shouldSkipTranslation(sourceText) -> {
+                    if (forceCacheResult) ViewTextCache.markNoTranslation(sourceText)
                     cacheAsNoTranslation(sourceText)
                     sourceText
                 }
                 else -> {
-                    getCachedTranslation(sourceText)
+                    (if (forceCacheResult) ViewTextCache.get(sourceText) else null)
+                        ?: getCachedTranslation(sourceText)
                         ?: (queryProvider(provider, sourceText, fromLang, toLang) ?: sourceText).also { translated ->
                             if (translated == sourceText) {
+                                if (forceCacheResult) ViewTextCache.markNoTranslation(sourceText)
                                 cacheAsNoTranslation(sourceText)
                             } else if (translated.isNotEmpty()) {
+                                if (forceCacheResult) ViewTextCache.put(sourceText, translated)
                                 cacheTranslation(sourceText, translated)
                             }
                         }
@@ -494,6 +499,9 @@ internal class GetTranslateToken {
 
             // Skip translation if source == target (non-auto)
             if (fromLang != "auto" && fromLang == toLang) {
+                if (callback.forceCacheResult) {
+                    ViewTextCache.markNoTranslation(textToTranslate)
+                }
                 Log.i(TAG, "Skipping: source and target languages identical ($fromLang).")
                 val mockRequest = Request.Builder().url("https://mock.identical.language.skip").build()
                 val mockCall = createMockHttpClient().newCall(mockRequest)
@@ -518,11 +526,20 @@ internal class GetTranslateToken {
             try {
                 val spanPayload = callback.spanTranslationPayload
                 if (spanPayload != null) {
-                    val translatedSegments = translateSegmentedText(spanPayload, provider, fromLang, toLang)
+                    val translatedSegments = translateSegmentedText(
+                        spanPayload,
+                        provider,
+                        fromLang,
+                        toLang,
+                        callback.forceCacheResult
+                    )
                     callback.translatedSegments = translatedSegments
                     result = translatedSegments.joinToString("")
                 } else {
                     result = queryProvider(provider, textToTranslate, fromLang, toLang)
+                    if (callback.forceCacheResult && result != null) {
+                        ViewTextCache.put(textToTranslate, result)
+                    }
                 }
             } catch (t: Throwable) {
                 handleTranslationFailure("Error executing $provider Provider query", t)
