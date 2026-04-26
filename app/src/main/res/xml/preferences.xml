@@ -108,6 +108,14 @@
 
         <SwitchPreference
             app:iconSpaceReserved="false"
+            app:key="ExtendedViewTranslation"
+            app:title="@string/extended_view_translation"
+            app:summaryOn="@string/extended_view_translation_summary_on"
+            app:summaryOff="@string/extended_view_translation_summary_off"
+            app:defaultValue="true" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
             app:key="LoadURL"
             app:title="@string/webView"
             app:summaryOn="@string/webView_summary_on"

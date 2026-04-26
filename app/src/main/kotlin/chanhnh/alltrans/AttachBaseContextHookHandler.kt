@@ -270,20 +270,24 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
             // TextView hooks (expandido)
             applyTextViewHooks()
 
-            // View/ViewGroup hooks to trigger translation on attached/dynamic views
-            applyViewHierarchyHooks()
+            if (PreferenceList.ExtendedViewTranslation) {
+                // View/ViewGroup hooks to trigger translation on attached/dynamic views
+                applyViewHierarchyHooks()
 
-            // Hook direct framework View text-bearing methods
-            applyFrameworkViewTextHooks()
+                // Hook direct framework View text-bearing methods
+                applyFrameworkViewTextHooks()
 
-            // Hook custom View/ViewGroup implementations exposing setText(...)
-            CustomViewSetTextHookHandler.hookCustomSetTextMethods(context)
+                // Hook custom View/ViewGroup implementations exposing text setters
+                CustomViewSetTextHookHandler.hookCustomSetTextMethods(context)
 
-            // StaticLayout hook for text rendered outside the TextView setText path
-            applyStaticLayoutHooks(context)
+                // StaticLayout hook for text rendered outside the TextView setText path
+                applyStaticLayoutHooks(context)
 
-            // Legacy layout constructors still used by many custom View implementations
-            applyLegacyLayoutHooks(context)
+                // Legacy layout constructors still used by many custom View implementations
+                applyLegacyLayoutHooks(context)
+            } else {
+                Utils.debugLog("Extended view translation hooks disabled for $packageName")
+            }
 
             // WebView hooks
             applyWebViewHooks(packageName)

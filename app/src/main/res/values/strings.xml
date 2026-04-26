@@ -79,6 +79,10 @@
     <string name="setHint_summary_off">"Not Translating Text written using Set Hint. Turn on to enable."</string>
     <string name="setHint_summary_on">"Translating Text written using Set Hint - Safe. Turn off to disable."</string>
 
+    <string name="extended_view_translation">"Extended View Translation"</string>
+    <string name="extended_view_translation_summary_off">"Only use the original TextView and setText translation path. Extended hooks such as StaticLayout.Builder.build(), layout constructors, framework View methods and custom View setters are disabled."</string>
+    <string name="extended_view_translation_summary_on">"Enable additional translation hooks outside the original TextView path, including StaticLayout.Builder.build(), layout constructors, framework View methods and custom View setters."</string>
+
     <!-- webView -->
     <string name="webView">"Translate Text in Web Pages inside Apps"</string>
     <string name="webView_summary_off">"Not Translating Text in WebViews. Turn on to enable."</string>

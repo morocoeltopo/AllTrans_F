@@ -44,6 +44,10 @@
     <string name="setHint_summary_off">"Không dịch văn bản được đặt bằng Set Hint. Bật để kích hoạt."</string>
     <string name="setHint_summary_on">"Đang dịch văn bản được đặt bằng Set Hint. An toàn. Tắt để vô hiệu hóa."</string>
 
+    <string name="extended_view_translation">"Dịch mở rộng ngoài TextView"</string>
+    <string name="extended_view_translation_summary_off">"Chỉ dùng đường dịch gốc của TextView và setText. Các hook mở rộng như StaticLayout.Builder.build(), constructor layout, method của View framework và setter của custom View sẽ bị tắt."</string>
+    <string name="extended_view_translation_summary_on">"Bật các hook dịch bổ sung ngoài đường TextView gốc, bao gồm StaticLayout.Builder.build(), constructor layout, method của View framework và setter của custom View."</string>
+
     <string name="webView">"Dịch văn bản trong trang web bên trong ứng dụng"</string>
     <string name="webView_summary_off">"Không dịch văn bản trong WebView. Bật để kích hoạt."</string>
     <string name="webView_summary_on">"Đang dịch văn bản trong WebView. An toàn nhưng có thể không phải lúc nào cũng hoạt động. Tắt để vô hiệu hóa."</string>

@@ -17,6 +17,7 @@ internal object PreferenceList {
 
     var SetText: Boolean = false
     var SetHint: Boolean = false
+    var ExtendedViewTranslation: Boolean = true
     var LoadURL: Boolean = false
     var Notif: Boolean = false
 
@@ -90,6 +91,11 @@ internal object PreferenceList {
 
             SetText = getValue(lPref, "SetText", getValue(gPref, "SetText", true)) as Boolean
             SetHint = getValue(lPref, "SetHint", getValue(gPref, "SetHint", true)) as Boolean
+            ExtendedViewTranslation = getValue(
+                lPref,
+                "ExtendedViewTranslation",
+                getValue(gPref, "ExtendedViewTranslation", true)
+            ) as Boolean
             LoadURL = getValue(lPref, "LoadURL", getValue(gPref, "LoadURL", true)) as Boolean
             Notif = getValue(lPref, "Notif", getValue(gPref, "Notif", true)) as Boolean
             Caching = getValue(lPref, "Cache", getValue(gPref, "Cache", true)) as Boolean
@@ -108,6 +114,7 @@ internal object PreferenceList {
 
             SetText = getValue(gPref, "SetText", true) as Boolean
             SetHint = getValue(gPref, "SetHint", true) as Boolean
+            ExtendedViewTranslation = getValue(gPref, "ExtendedViewTranslation", true) as Boolean
             LoadURL = getValue(gPref, "LoadURL", true) as Boolean
             Notif = getValue(gPref, "Notif", true) as Boolean
             Caching = getValue(gPref, "Cache", true) as Boolean
